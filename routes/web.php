@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GrafikController;
+use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -10,12 +13,11 @@ use Inertia\Inertia;
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
+| Web routes untuk halaman Laravel + Inertia
 |
 */
 
+// Halaman welcome
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -25,14 +27,25 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
+// Group route untuk auth
 Route::middleware('auth')->group(function () {
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Admin routes
 });
 
-require __DIR__.'/auth.php';
+Route::prefix('admin')->group(function () {
+    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+    Route::post('/import-mahasiswa', [MahasiswaController::class, 'import'])->name('import.mahasiswa');
+});
+
+// API untuk React fetch mahasiswa
+Route::get('/api/mahasiswa', [MahasiswaController::class, 'apiIndex'])->name('api.mahasiswa');
+Route::get('grafik', [GrafikController::class, 'index'])->name('grafik.index');
+
+
+
+require __DIR__ . '/auth.php';
